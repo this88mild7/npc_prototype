@@ -2,4 +2,4 @@
 
 ### What is this repository for? ###
 
-* NEXPector Air Prototype
+* NEXPector Air 프로토타입 
