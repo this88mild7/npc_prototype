@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.neonex.npa.dao.ImageDao">
+ 
+	<insert id="insertBackgroundImg" parameterType="ImageInfo">
+		<selectKey resultType="int" keyProperty="imgSeq" order="BEFORE">
+			SELECT SQVO_BACKGROUNDIMG_INFO.nextval as imgSeq FROM DUAL
+		</selectKey>
+		INSERT
+			INTO TVO_BACKGROUNDIMG_INFO
+			  (
+			    BACKGROUNDIMG_SEQ,
+			    ORIGINAL_LOC,
+			    THUMBNAIL_LOC,
+			    IMG_NM,
+			    REGUSER_EMAIL,
+			    UPTUSER_EMAIL,
+			    REGDATE,
+			    UPTDATE
+			  )
+			  VALUES
+			  (
+			    #{imgSeq},
+			    #{originalLoc},
+			    #{thumbnailLoc},
+			    #{imgNm},
+			    #{regUserEmail},
+			    #{uptUserEmail},
+			    to_char(sysdate, 'YYYYMMDDHH24MISS'),
+			    to_char(sysdate, 'YYYYMMDDHH24MISS')
+			  )
+	</insert>
+	
+	<insert id="insertUserImg" parameterType="ImageInfo">
+		<selectKey resultType="int" keyProperty="imgSeq" order="BEFORE">
+			SELECT SQVO_USERIMG_INFO.nextval as imgSeq FROM DUAL
+		</selectKey>
+		INSERT
+			INTO TVO_USERIMG_INFO
+			  (
+			    IMG_SEQ,
+			    IMG_NM,
+			    ORIGINAL_LOC,
+			    THUMBNAIL_LOC,
+			    IMG_DIV_CODE,
+			    REGDATE,
+			    REGUSER_EMAIL,
+			    UPTDATE,
+			    UPTUSER_EMAIL,
+			    DEL_YN
+			  )
+			  VALUES
+			  (
+			    #{imgSeq},
+			    #{imgNm},
+			    #{originalLoc},
+			    #{thumbnailLoc},
+			    '000',
+			    to_char(sysdate, 'YYYYMMDDHH24MISS'),
+			    #{regUserEmail},
+			    to_char(sysdate, 'YYYYMMDDHH24MISS'),
+			    #{uptUserEmail},
+			    'N'
+			  )
+	</insert>
+	
+	<select id="getBackgroundImageInfo" parameterType="int" resultType="ImageInfo">
+		SELECT 
+			BACKGROUNDIMG_SEQ as imgSeq,
+			ORIGINAL_LOC as originalLoc,
+			THUMBNAIL_LOC as thumbnailLoc, 
+			IMG_NM as imgNm,
+			REGUSER_EMAIL as regUserEmail,
+			UPTUSER_EMAIL as uptUserEmail,
+			REGDATE as regDate,
+			UPTDATE as uptDate
+		FROM TVO_BACKGROUNDIMG_INFO 
+		WHERE 1=1 
+		AND BACKGROUNDIMG_SEQ = #{imgSeq}
+	</select>
+	
+	<select id="getBackgroundImageInfoByRegUser" parameterType="String" resultType="ImageInfo">
+		SELECT 
+			BACKGROUNDIMG_SEQ as imgSeq,
+			ORIGINAL_LOC as originalLoc,
+			THUMBNAIL_LOC as thumbnailLoc, 
+			IMG_NM as imgNm,
+			REGUSER_EMAIL as regUserEmail,
+			UPTUSER_EMAIL as uptUserEmail,
+			REGDATE as regDate,
+			UPTDATE as uptDate
+		FROM TVO_BACKGROUNDIMG_INFO 
+		WHERE 1=1 
+		AND REGUSER_EMAIL = #{userEmail}
+		AND BACKGROUNDIMG_SEQ IS NOT NULL
+	</select>
+	
+	<select id="getUserImageInfo" parameterType="int" resultType="ImageInfo">
+		SELECT 
+			IMG_SEQ as imgSeq,
+			ORIGINAL_LOC as originalLoc,
+			THUMBNAIL_LOC as thumbnailLoc, 
+			IMG_NM as imgNm,
+			IMG_DIV_CODE as imgDivCode,
+			REGUSER_EMAIL as regUserEmail,
+			UPTUSER_EMAIL as uptUserEmail,
+			REGDATE as regDate,
+			UPTDATE as uptDate
+		FROM TVO_USERIMG_INFO 
+		WHERE 1=1 
+		AND IMG_SEQ = #{imgSeq}
+		AND DEL_YN = 'N'
+	</select>
+	
+	<select id="getUserImagePath" parameterType="int" resultType="String">
+		SELECT 
+		  ORIGINAL_LOC
+		FROM TVO_USERIMG_INFO
+		WHERE 1=1
+		AND IMG_SEQ = #{imgSeq}
+	</select>
+	
+	<delete id="deleteBackgroundImg" parameterType="String">
+		DELETE FROM TVO_BACKGROUNDIMG_INFO
+		WHERE 1=1
+		AND REGUSER_EMAIL = #{userEmail}
+	</delete>
+	
+	<!-- 캔버스에서 사용하는 이미지는 보여 줘야 함 -->
+	<update id="deleteUserImg" parameterType="int">
+		UPDATE TVO_USERIMG_INFO SET
+			DEL_YN = 'Y'
+		WHERE IMG_SEQ = #{imgSeq}
+	</update>
+	
+	<select id="getDefaultImageSeqList" resultType="Map">
+		SELECT 
+			IMG_SEQ as imgSeq,
+			ORIGINAL_LOC as imgPath
+		FROM TVO_USERIMG_INFO
+		WHERE 1=1
+		<![CDATA[ 
+		AND IMG_DIV_CODE <> '000'
+		]]>
+	</select>
+	
+	<select id="getUserImageSeqList" parameterType="String" resultType="int">
+	   SELECT IMG_SEQ FROM TVO_USERIMG_INFO
+	   WHERE 1=1
+	   AND IMG_DIV_CODE = '000'
+	   AND REGUSER_EMAIL = #{userEmail}
+	   AND DEL_YN = 'N'
+	   ORDER BY IMG_SEQ
+	</select>
+	
+	<select id="getBackgroundTopOneSeq" resultType="int">
+		SELECT BACKGROUNDIMG_SEQ FROM TVO_BACKGROUNDIMG_INFO WHERE ROWNUM =1
+	</select>
+	
+</mapper> 

@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:util="http://www.springframework.org/schema/util"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+		
+	<util:properties id="config" location="classpath:properties.xml" />
+	<util:properties id="db_config" location="classpath:db_properties.xml" />
+		
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources in the /WEB-INF/views directory -->
+	<beans:bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+	
+	<beans:bean id="imageService" class="com.neonex.npa.service.ImageService">
+		<beans:constructor-arg value="#{config['dir.img.resized']}" />
+		<beans:constructor-arg value="#{config['dir.img.thumbnail']}" />
+	</beans:bean>
+	
+	<!-- exception resolve 추가 예정 -->
+	
+	<context:component-scan base-package="com.neonex.npa" />
+	<beans:bean id="multipartResolver"  class="org.springframework.web.multipart.commons.CommonsMultipartResolver"/>
+	
+	<interceptors>
+	 	<interceptor>  
+    		<mapping path="/**/*" />
+    		<beans:bean class="com.neonex.npa.intercepter.AuthenticInterceptor">  	      	 
+    		</beans:bean>   
+  		</interceptor>  
+	</interceptors>  
+	
+	<beans:bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+        <beans:property name="driverClassName" value="oracle.jdbc.driver.OracleDriver"/>
+        <beans:property name="url" value="#{db_config['url']}"/>
+        <beans:property name="username" value="#{db_config['username']}"/>
+        <beans:property name="password" value="#{db_config['password']}"/>
+    </beans:bean>
+    
+	
+	<beans:bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <beans:property name="dataSource" ref="dataSource" />
+        <!-- type aliase 설정 -->
+        <beans:property name="typeAliasesPackage" value="com.neonex.npa.model" />
+        <beans:property name="mapperLocations" value="classpath*:query/**/*.xml" />
+    </beans:bean>
+    
+    <beans:bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <beans:property name="basePackage" value="com.neonex.npa.**.dao" />
+        <beans:property name="sqlSessionFactory" ref="sqlSessionFactory" />
+        <beans:property name="annotationClass" value="org.springframework.stereotype.Repository"/>
+    </beans:bean>
+	
+	
+</beans:beans>

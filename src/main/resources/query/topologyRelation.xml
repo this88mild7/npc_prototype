@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.neonex.npa.dao.TopologyRelationDao">
+ 
+	<insert id="insert" parameterType="TopologyRelationInfo">
+		INSERT /* topology relation insert */
+			INTO TVO_TOPOLOGY_RELATION_INFO
+			  (
+			    RELATION_SEQ,
+			    RELATION_OBJECT_CODE,
+			    RELATION_LINE_COLOR,
+			    LINE_WIDTH,
+			    LINE_TYPE_CODE,
+			    REGDATE,
+			    REGUSER_EMAIL,
+			    UPTDATE,
+			    UPTUSER_EMAIL,
+			    OBJECT_CODE
+			  )
+			  VALUES
+			  (
+			    SQVO_TOPOLOGY_RELATION_INFO.nextval,
+				#{relationObjectCode},
+				#{relationLineColor},
+				#{lineWidth},
+				#{lineTypeCode},
+				to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				#{regUserEmail},
+				to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				#{regUserEmail},
+				#{objectCode}
+			  )
+	</insert>
+	
+	<select id="select" parameterType="String" resultType="TopologyRelationInfo">
+		SELECT 
+			RELATION_SEQ as relationSeq,
+			RELATION_OBJECT_CODE as relationObjectCode,
+			RELATION_LINE_COLOR as relationLineColor,
+			LINE_WIDTH as lineWidth,
+			LINE_TYPE_CODE as lineTypeCode,
+			REGDATE as regDate,
+			REGUSER_EMAIL as regUserEmail,
+			UPTDATE as uptDate,
+			UPTUSER_EMAIL as uptUserEmail,
+			OBJECT_CODE as objectCode
+		FROM TVO_TOPOLOGY_RELATION_INFO
+		WHERE 1=1
+		AND OBJECT_CODE = #{objectCode}
+	</select>
+	
+	<select id="selectList" parameterType="TopologyRelationInfo" resultType="TopologyRelationInfo">
+		SELECT 
+			RELATION_SEQ as relationSeq,
+			RELATION_OBJECT_CODE as relationObjectCode,
+			RELATION_LINE_COLOR as relationLineColor,
+			LINE_WIDTH as lineWidth,
+			LINE_TYPE_CODE as lineTypeCode,
+			REGDATE as regDate,
+			REGUSER_EMAIL as regUserEmail,
+			UPTDATE as uptDate,
+			UPTUSER_EMAIL as uptUserEmail,
+			OBJECT_CODE as objectCode
+		FROM TVO_TOPOLOGY_RELATION_INFO
+		WHERE 1=1
+		AND REGUSER_EMAIL = #{regUserEmail}
+		AND OBJECT_CODE = #{objectCode}
+	</select>
+	
+	<select id="aleadyHasCount" parameterType="TopologyRelationInfo" resultType="int">
+		SELECT count(*)
+		FROM TVO_TOPOLOGY_RELATION_INFO
+		WHERE 1=1
+		AND REGUSER_EMAIL = #{regUserEmail}
+		AND OBJECT_CODE = #{objectCode}
+		AND RELATION_OBJECT_CODE = #{relationObjectCode}
+	</select>
+	
+	<delete id="deleteByRelationObjectCode" parameterType="String">
+		DELETE FROM TVO_TOPOLOGY_RELATION_INFO
+		WHERE 1=1
+		AND RELATION_OBJECT_CODE = #{objectCode}
+	</delete>
+	
+	<delete id="deleteByObjectCode" parameterType="String">
+		DELETE FROM TVO_TOPOLOGY_RELATION_INFO
+		WHERE 1=1
+		AND OBJECT_CODE = #{objectCode}
+	</delete>
+	
+	<update id="update" parameterType="TopologyRelationInfo">
+		UPDATE TVO_TOPOLOGY_RELATION_INFO
+		SET
+			RELATION_LINE_COLOR = #{relationLineColor},
+			LINE_WIDTH = #{lineWidth},
+			LINE_TYPE_CODE = #{lineTypeCode},
+			UPTDATE = to_char(sysdate, 'YYYYMMDDHH24MISS'),
+			UPTUSER_EMAIL = #{uptUserEmail}
+		WHERE 1=1
+		AND RELATION_OBJECT_CODE = #{objectCode}
+		AND RELATION_OBJECT_CODE = #{relationObjectCode}
+	</update>
+	
+	
+</mapper> 

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.neonex.npa.dao.DeviceDao">
+ 
+	<insert id="insert" parameterType="DeviceInfo">
+		INSERT /* Device insert */
+			INTO TVO_TOPOLOGY_INFO
+			  (
+			    OBJECT_CODE,
+			    OBJECT_NM,
+			    OBJECTUPPER_CODE,
+			    OBJECT_TYPE_CODE,
+			    INNERIMG_COORX,
+				INNERIMG_COORY,
+				INNERIMG_WIDTH,
+				INNERIMG_HEIGHT,
+				INNERIMG_DEPTH,
+			    ORDER_ORDER,
+			    IMEI,
+			    REGUSER_EMAIL,
+			    REGDATE,
+			    UPTUSER_EMAIL,
+			    UPTDATE,
+			    MDN,
+			    IP,
+			    SM,
+			    GW,
+			    MAIN_DEV_YN,
+			    TOP_YN
+			  )
+			  VALUES
+			  (
+			  	 #{objectCode},
+				 #{imei},
+				 #{objectUpperCode},
+				 '001',
+				 1,
+				 1,
+				 1,
+				 1,
+				 1,
+				 1,
+				 #{imei},
+				 #{regUserEmail},
+				 to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				 #{regUserEmail},
+				 to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				 #{mdn},
+				 #{ip},
+				 #{sm},
+				 #{gw},
+				 #{mainDevYn},
+				 'Y'
+			  )
+	</insert>
+	
+	<delete id="delete" parameterType="DeviceInfo">
+	   DELETE /* device delete */FROM TVO_TOPOLOGY_INFO
+	   WHERE 1=1 
+	   AND REGUSER_EMAIL = #{regUserEmail}
+	   AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+	</delete>
+	
+	
+	<select id="selectList" parameterType="DeviceInfo" resultType="DeviceInfo">
+		SELECT OBJECT_CODE as objectCode,
+			OBJECT_NM as objectNm,
+			OBJECTUPPER_CODE as objectUpperCode,
+			ORDER_ORDER as orderOrder,
+			OBJECT_TYPE_CODE as objectTypeCode,
+			IMEI as imeiHidden,
+			IMEI as imei,
+			REGUSER_EMAIL as regUserEmail,
+			REGDATE as regDate,
+			UPTUSER_EMAIL as uptUserEmail,
+			UPTDATE as uptDate,
+			TOP_YN as topYn,
+			MDN as mdn,
+			IP as ip,
+			SM as sm,
+			GW as gw
+		FROM TVO_TOPOLOGY_INFO
+		WHERE 1=1
+		AND REPLACE(OBJECTUPPER_CODE,' ', '') = #{objectUpperCode}
+		AND OBJECT_TYPE_CODE = '001'
+		ORDER BY regDate
+	</select>
+	
+	<select id="selectDeviceDetail" parameterType="DeviceInfo" resultType="DeviceInfo">
+		SELECT OBJECT_CODE as objectCode,
+			OBJECT_NM as objectNm,
+			OBJECTUPPER_CODE as objectUpperCode,
+			ORDER_ORDER as orderOrder,
+			OBJECT_TYPE_CODE as objectTypeCode,
+			IMEI as imei,
+			REGUSER_EMAIL as regUserEmail,
+			REGDATE as regDate,
+			UPTUSER_EMAIL as uptUserEmail,
+			UPTDATE as uptDate,
+			TOP_YN as topYn,
+			MDN as mdn,
+			IP as ip,
+			SM as sm,
+			GW as gw
+		FROM TVO_TOPOLOGY_INFO
+		WHERE 1=1
+		AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+		AND OBJECT_TYPE_CODE = '001'
+	</select>
+	
+	<select id="checkDuplicate" parameterType="DeviceInfo" resultType="int">
+		SELECT count(*)
+		FROM TVO_TOPOLOGY_INFO
+		WHERE 1=1
+		AND (IMEI = #{imei} OR MDN = #{mdn})
+		AND OBJECT_TYPE_CODE = '001'
+	</select>
+	
+	<select id="checkDuplicateByObjectCode" parameterType="String" resultType="int">
+		SELECT count(*)
+		FROM TVO_TOPOLOGY_INFO
+		WHERE 1=1
+		AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+		AND OBJECT_TYPE_CODE = '001'
+	</select>
+	
+	
+	
+	<update id="update" parameterType="DeviceInfo" >
+		UPDATE TVO_TOPOLOGY_INFO
+			SET 
+				OBJECT_NM = #{imei},
+				OBJECTUPPER_CODE = #{objectUpperCode},
+				ORDER_ORDER = 1,
+				INNERIMG_COORX = 1,
+				INNERIMG_COORY = 1,
+				INNERIMG_WIDTH = 1,
+				INNERIMG_HEIGHT = 1,
+				INNERIMG_DEPTH = 1,
+				UPTUSER_EMAIL = #{uptUserEmail},
+				UPTDATE = to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				TOP_YN = 'Y',
+				IMEI = #{imei},
+			    MDN = #{mdn},
+			    IP = #{ip},
+			    SM = #{sm},
+			    GW = #{gw}
+			WHERE 1=1 
+			AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode} 
+			AND OBJECT_TYPE_CODE = '001'
+	</update>
+	
+</mapper> 

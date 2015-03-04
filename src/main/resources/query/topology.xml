@@ -1,0 +1,313 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+ <mapper namespace="com.neonex.npa.dao.TopologyDao">
+ 
+	<insert id="insert" parameterType="TopologyInfo">
+		INSERT /* topology insert */
+			INTO TVO_TOPOLOGY_INFO
+			  (
+			    OBJECT_CODE,
+			    OBJECT_NM,
+			    OBJECTUPPER_CODE,
+			    ORDER_ORDER,
+			    OBJECT_TYPE_CODE,
+			    IMEI,
+			    INNERIMG_COORX,
+			    INNERIMG_COORY,
+			    INNERIMG_WIDTH,
+			    INNERIMG_HEIGHT,
+			    INNERIMG_DEPTH,
+			    REGUSER_EMAIL,
+			    REGDATE,
+			    UPTUSER_EMAIL,
+			    UPTDATE,
+			    IMG_SEQ,
+			    TOP_YN
+			  )
+			  VALUES
+			  (
+			  	 #{objectCode},
+				 #{objectNm},
+				 #{objectUpperCode},
+				 TO_NUMBER(#{orderOrder}, 999999),
+				 #{objectTypeCode},
+				 #{imei},
+				 TO_NUMBER(#{inneringCoorX}, 999999.9),
+				 TO_NUMBER(#{inneringCoorY}, 999999.9),
+				 TO_NUMBER(#{inneringWidth}, 999999.9),
+				 TO_NUMBER(#{inneringHeight}, 999999.9),
+				 TO_NUMBER(#{inneringDepth}, 999999),
+				 #{regUserEmail},
+				 to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				 #{regUserEmail},
+				 to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				 #{imgSeq},
+				 #{topYn}
+			  )
+	</insert>
+	
+	<insert id="insertMinInfo" parameterType="TopologyInfo">
+        INSERT
+            INTO TVO_TOPOLOGY_INFO
+              (
+                OBJECT_CODE,
+                OBJECTUPPER_CODE,
+                OBJECT_NM,
+                OBJECT_TYPE_CODE,
+                REGUSER_EMAIL,
+                REGDATE,
+                UPTUSER_EMAIL,
+                UPTDATE,
+                TOP_YN,
+                ORDER_ORDER,
+                INNERIMG_COORX,
+                INNERIMG_COORY,
+                INNERIMG_WIDTH,
+                INNERIMG_HEIGHT,
+                INNERIMG_DEPTH
+              )
+              VALUES
+              (
+                 #{objectCode},
+                 #{objectUpperCode},
+                 #{objectNm},
+                 '000',
+                 #{regUserEmail},
+                 to_char(sysdate, 'YYYYMMDDHH24MISS'),
+                 #{regUserEmail},
+                 to_char(sysdate, 'YYYYMMDDHH24MISS'),
+                 'Y',
+                 1,
+                 0,
+                 0,
+                 0,
+                 0,
+                 0
+              )
+    </insert>
+	
+	<insert id="makeRoot" parameterType="String">
+		INSERT
+			INTO TVO_TOPOLOGY_INFO
+			  (
+			    OBJECT_CODE,
+			    OBJECTUPPER_CODE,
+			    OBJECT_NM,
+			    OBJECT_TYPE_CODE,
+			    ORDER_ORDER,
+			    INNERIMG_COORX,
+                INNERIMG_COORY,
+                INNERIMG_WIDTH,
+                INNERIMG_HEIGHT,
+                INNERIMG_DEPTH,
+			    REGUSER_EMAIL,
+			    REGDATE,
+			    UPTUSER_EMAIL,
+                UPTDATE,
+			    TOP_YN
+			  )
+			  VALUES
+			  (
+			  	 '1111',
+			  	 '0000',
+				 'ROOT',
+				 '000',
+				 0,
+				 0,
+				 0,
+				 0,
+				 0,
+				 0,
+				 #{userEmail},
+				 to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				 #{userEmail},
+				 to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				 'Y'
+			  )
+	</insert>
+	
+	<select id="select" parameterType="String" resultType="TopologyInfo">
+		SELECT OBJECT_CODE as objectCode,
+			OBJECT_NM as objectNm,
+			OBJECTUPPER_CODE as objectUpperCode,
+			ORDER_ORDER as orderOrder,
+			OBJECT_TYPE_CODE as objectTypeCode,
+			IMEI as imei,
+			INNERIMG_COORX as inneringCoorX,
+			INNERIMG_COORY as inneringCoorY,
+			INNERIMG_WIDTH as inneringWidth,
+			INNERIMG_HEIGHT as inneringHeight,
+			INNERIMG_DEPTH as inneringDepth,
+			REGUSER_EMAIL as regUserEmail,
+			REGDATE as regDate,
+			UPTUSER_EMAIL as uptUserEmail,
+			UPTDATE as uptDate,
+			BACKGROUNDIMG_SEQ as backgroundImgSeq,
+			IMG_SEQ as imgSeq,
+			TOP_YN as topYn,
+			(SELECT rtrim(xmlagg(xmlelement("relationObjects",RELATION_OBJECT_CODE,',') order by RELATION_SEQ).extract('//text()').getstringval(),',')
+			FROM TVO_TOPOLOGY_RELATION_INFO WHERE OBJECT_CODE = TI.OBJECT_CODE
+			) as relationObjects,
+			(SELECT rtrim(xmlagg(xmlelement("colors",RELATION_LINE_COLOR,',') order by RELATION_SEQ).extract('//text()').getstringval(),',')
+			FROM TVO_TOPOLOGY_RELATION_INFO WHERE OBJECT_CODE = TI.OBJECT_CODE
+			) as colors
+		FROM TVO_TOPOLOGY_INFO TI
+		WHERE 1=1
+		AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+	</select>
+	
+	<select id="hasRoot" parameterType="String" resultType="int">
+		SELECT count(*)
+		FROM TVO_TOPOLOGY_INFO
+		WHERE 1=1
+		AND REGUSER_EMAIL = #{userEmail}
+		AND REPLACE(OBJECT_CODE,' ', '') = '1111'
+	</select>
+	
+	<select id="selectRootBackgroundImgSeq" parameterType="String" resultType="int">
+		SELECT NVL(BACKGROUNDIMG_SEQ, 0 )
+		FROM TVO_TOPOLOGY_INFO
+		WHERE 1=1
+		AND REGUSER_EMAIL = #{userEmail}
+		AND REPLACE(OBJECT_CODE,' ', '') = '1111'
+	</select>
+	
+	<delete id="deleteRoot" parameterType="String">
+	   DELETE FROM TVO_TOPOLOGY_INFO
+	   WHERE 1=1 
+	   AND REGUSER_EMAIL = #{userEmail}
+	   AND TOP_YN = 'Y'
+	</delete>
+	
+	<update id="update" parameterType="TopologyInfo" >
+		UPDATE TVO_TOPOLOGY_INFO
+			SET 
+				OBJECT_NM = #{objectNm},
+				OBJECTUPPER_CODE = #{objectUpperCode},
+				ORDER_ORDER = #{orderOrder},
+				OBJECT_TYPE_CODE = #{objectTypeCode},
+				IMEI = #{imei},
+				INNERIMG_COORX = #{inneringCoorX},
+				INNERIMG_COORY = #{inneringCoorY},
+				INNERIMG_WIDTH = #{inneringWidth},
+				INNERIMG_HEIGHT = #{inneringHeight},
+				INNERIMG_DEPTH = #{inneringDepth},
+				UPTUSER_EMAIL = #{uptUserEmail},
+				UPTDATE = to_char(sysdate, 'YYYYMMDDHH24MISS'),
+				<if test="backgroundImgSeq != null and backgroundImgSeq != ''">
+				BACKGROUNDIMG_SEQ = #{backgroundImgSeq},
+			    </if>
+				IMG_SEQ = #{imgSeq},
+				TOP_YN = #{topYn}
+			WHERE 1=1 
+			AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode} 
+	</update>
+	<update id="updateTitle" parameterType="TopologyInfo" >
+		UPDATE TVO_TOPOLOGY_INFO
+			SET 
+				OBJECT_NM = #{objectNm},
+				UPTUSER_EMAIL = #{uptUserEmail}
+			WHERE 1=1 
+			AND REGUSER_EMAIL = #{regUserEmail}
+			AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+	</update>
+	
+	<update id="deleteBackground" parameterType="TopologyInfo" >
+		UPDATE TVO_TOPOLOGY_INFO
+			SET 
+				BACKGROUNDIMG_SEQ = ''
+			WHERE 1=1 
+			AND REGUSER_EMAIL = #{regUserEmail}
+			AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+	</update>
+	
+	<update id="updateBackgroundImg" parameterType="TopologyInfo">
+        UPDATE TVO_TOPOLOGY_INFO
+            SET BACKGROUNDIMG_SEQ = #{backgroundImgSeq}
+        WHERE 1=1
+        AND REGUSER_EMAIL = #{regUserEmail}
+        AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+	</update>
+	
+	<delete id="delete" parameterType="TopologyInfo">
+		DELETE FROM TVO_TOPOLOGY_INFO
+		WHERE 1=1
+		AND REGUSER_EMAIL = #{regUserEmail}
+		AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+	</delete>
+	
+	<delete id="deleteDeviceByObjectCode" parameterType="String">
+		DELETE FROM TVO_TOPOLOGY_INFO 
+		WHERE OBJECTUPPER_CODE = #{objectCode}
+		AND OBJECT_TYPE_CODE = '001'
+	</delete>
+	
+	<select id="selectTopologyList" parameterType="TopologyInfo" resultType="TopologyInfo">
+		SELECT /* selectTopologyList */
+			OBJECT_CODE  AS objectCode,
+			OBJECT_NM         AS objectNm,
+			OBJECTUPPER_CODE  AS objectUpperCode,
+			ORDER_ORDER       AS orderOrder,
+			OBJECT_TYPE_CODE  AS objectTypeCode,
+			IMEI              AS imei,
+			MDN    AS mdn,
+			IP    AS ip,
+			SM    AS sm,
+			GW   AS gw,
+			INNERIMG_COORX    AS inneringCoorX,
+			INNERIMG_COORY    AS inneringCoorY,
+			INNERIMG_WIDTH    AS inneringWidth,
+			INNERIMG_HEIGHT   AS inneringHeight,
+			INNERIMG_DEPTH    AS inneringDepth,
+			REGUSER_EMAIL     AS regUserEmail,
+			REGDATE           AS regDate,
+			UPTUSER_EMAIL     AS uptUserEmail,
+			UPTDATE           AS uptDate,
+			BACKGROUNDIMG_SEQ AS backgroundImgSeq,
+			IMG_SEQ           AS imgSeq,
+			TOP_YN            AS topYn,
+			(
+				SELECT 
+	        		rtrim(xmlagg(xmlelement("relationObjectNms",OBJECT_NM,',')).extract('//text()').getstringval(),',')
+	      		FROM TVO_TOPOLOGY_INFO
+	      		WHERE 1=1
+	      		AND OBJECT_CODE IN (
+	        			SELECT RELATION_OBJECT_CODE
+	        			FROM TVO_TOPOLOGY_RELATION_INFO WHERE OBJECT_CODE = TI.OBJECT_CODE
+	        		)
+			) as relationObjectNms,
+			(SELECT rtrim(xmlagg(xmlelement("relationObjects",RELATION_OBJECT_CODE,',') order by RELATION_SEQ).extract('//text()').getstringval(),',')
+			FROM TVO_TOPOLOGY_RELATION_INFO WHERE OBJECT_CODE = TI.OBJECT_CODE
+			) as relationObjects,
+			(SELECT rtrim(xmlagg(xmlelement("relationObjects",RELATION_OBJECT_CODE,',') order by RELATION_SEQ).extract('//text()').getstringval(),',')
+			FROM TVO_TOPOLOGY_RELATION_INFO WHERE OBJECT_CODE = TI.OBJECT_CODE
+			) as relations,
+			(SELECT rtrim(xmlagg(xmlelement("colors",RELATION_LINE_COLOR,',') order by RELATION_SEQ).extract('//text()').getstringval(),',')
+			FROM TVO_TOPOLOGY_RELATION_INFO WHERE OBJECT_CODE = TI.OBJECT_CODE
+			) as colors,
+			(SELECT rtrim(xmlagg(xmlelement("lineTypeCode",LINE_TYPE_CODE,',') order by RELATION_SEQ).extract('//text()').getstringval(),',')
+			FROM TVO_TOPOLOGY_RELATION_INFO WHERE OBJECT_CODE = TI.OBJECT_CODE
+			) as lineTypeCode,
+			(SELECT rtrim(xmlagg(xmlelement("lineWidth",LINE_WIDTH,',') order by RELATION_SEQ).extract('//text()').getstringval(),',')
+			FROM TVO_TOPOLOGY_RELATION_INFO WHERE OBJECT_CODE = TI.OBJECT_CODE
+			) as lineWidth
+		FROM TVO_TOPOLOGY_INFO TI
+		WHERE 1              =1
+		AND REGUSER_EMAIL    = #{regUserEmail}
+		AND  REPLACE(OBJECTUPPER_CODE,' ', '') = #{objectUpperCode}
+		ORDER BY REGDATE
+	
+	</select>
+	
+	<select id="hasTopology" parameterType="TopologyInfo" resultType="int">
+		SELECT count(*)
+		FROM TVO_TOPOLOGY_INFO
+		WHERE 1=1
+		AND REGUSER_EMAIL = #{regUserEmail}
+		AND REPLACE(OBJECT_CODE,' ', '') = #{objectCode}
+	</select>
+	
+	
+</mapper> 

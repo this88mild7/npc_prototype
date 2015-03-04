@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE properties SYSTEM "http://java.sun.com/dtd/properties.dtd">
+<properties>
+
+	<!-- comment 태그를 사용 하면 에러가 발생함 -->
+
+	<!-- 
+	<comment>원본 이미지 저장 디렉토리</comment>
+	 -->
+	<entry key="dir.img.org">/temp/npa/image/origin/</entry>
+	
+	<!--
+	<comment>리사이즈 이미지 저장 디렉토리</comment>
+	-->
+	<entry key="dir.img.resized">/npa/image/resized/</entry>
+	
+	<!--
+	<comment>thumbnail 이미지 저장 디렉토리</comment>
+	-->
+	<entry key="dir.img.thumbnail">/npa/image/thumbnail/</entry>
+	
+	<!--
+	<comment>업로드 이미지 제한 용량(M)</comment>
+	-->
+	<entry key="img.limit.size">5</entry>
+	
+	<!--
+	<comment>업로드 이미지 가능 확장자</comment>
+	-->
+	<entry key="img.extensions">jpg/gif/png</entry>
+	
+	<!--
+	<comment>main 이미지(MapType) 리사이징 세로 기본값</comment>
+	-->
+	<entry key="img.resize.main.height">400</entry>
+	
+	<!--
+	<comment>main 이미지(MapType) 리사이징 가로 기본값</comment>
+	-->
+	<entry key="img.resize.main.width">550</entry>
+	
+	<!--
+	<comment>sub 이미지(UserType) 리사이징 세로 기본값</comment>
+	-->
+	<entry key="img.resize.sub.height">200</entry>
+	
+	<!--
+	<comment>sub 이미지(UserType) 리사이징 가로 기본값</comment>
+	-->
+	<entry key="img.resize.sub.width">200</entry>
+	
+	<!--
+	<comment>thumbnail 이미지 리사이징 세로 기본값</comment>
+	-->
+	<entry key="img.resize.thumb.height">40</entry>
+	
+	<!--
+	<comment>thumbnail 이미지 리사이징 가로 기본값</comment>
+	-->
+	<entry key="img.resize.thumb.width">40</entry>
+	
+</properties>
